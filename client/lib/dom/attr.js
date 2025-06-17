@@ -1,4 +1,7 @@
-function getAttr(node, prop) {
+import {getNode} from './getNode.js';
+import {isString, isUndefined, isNull} from '../utils/type.js';
+
+export function getAttr(node, prop) {
     if (isString(node)) node = getNode(node);
     if (!isString(prop))
       throw new TypeError(
@@ -9,7 +12,7 @@ function getAttr(node, prop) {
   
   getAttr('.first', 'class'); // "first"
   
-  function setAttr(node, prop, value) {
+  export function setAttr(node, prop, value) {
     if (isString(node)) node = getNode(node);
     if (!isString(prop))
       throw new TypeError(
@@ -27,7 +30,7 @@ function getAttr(node, prop) {
   
   setAttr('.first', 'id', 'hello');
   
-  function attr(node, prop, value) {
+  export  function attr(node, prop, value) {
     if (isUndefined(value)) {
       return getAttr(node, prop);
     } else {
