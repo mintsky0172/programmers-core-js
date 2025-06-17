@@ -1,5 +1,5 @@
-import { getNode  } from './getNode.js';
-import {isString, isObject} from '../utils/type.js';
+import { isString, isObject } from '../utils/type.js';
+import { getNode } from './getNode.js';
 
 /**
  * @function DOM Element에 클래스를 추가하는 함수
@@ -11,6 +11,12 @@ import {isString, isObject} from '../utils/type.js';
 
 export function addClass(node, className) {
   if (isString(node)) node = getNode(node);
+
+  // className이 유효하지 않은 경우 처리
+  if (!className || typeof className !== 'string') {
+    console.error('addClass 함수에 전달된 className이 유효하지 않습니다:', className);
+    return;
+  }
 
   if (className.includes(',')) {
     className = className.replace(/\s*/g, '').split(',');

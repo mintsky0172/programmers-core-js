@@ -1,40 +1,67 @@
-// import { getNode } from './lib/dom/getNode.js';
-// import { insertLast } from './lib/dom/insert.js';
-// import { clearContents } from './lib/dom/clearContents.js';
-import { getNode, insertLast, clearContents } from './lib/index.js';
 /*
-1. input 선택하기 : getNode or querySelector
-2. input 이벤트 바인딩 : addEventListener('input')
-3. input의 value 값 가져오기 : input.value
-4. 숫자값 더하기 : value + value2
-5. result에 출력하기 : insertLast or insertAdjacetHTML
-6. clear 클릭 시 모든 값 초기화
+[phase-1]
+1. 주접 떨기 버튼을 클릭하는 함수
+ - 주접 떨기 버튼 가져오기
+ - 이벤트 연결 'click'
+2. input 값 가져오기
+ - input.value
+3. data 함수에서 주접 이름 넣고 꺼내기
+ - n번째 주접 pick하기
+
+ [phase-2]
+ 5. 예외 처리
+  - 이름이 없을 경우 에러
+  - 숫자만 들어오면 에러
 */
 
-const first = getNode('#firstNumber');
-const second = getNode('#secondNumber');
-const result = getNode('.result');
+import {
+  getNode,
+  clearContents,
+  showAlert,
+  isNumericString,
+  shake,
+} from './lib/index.js';
+import jujeobData from './data/data.js';
+import { getRandom } from './lib/math/index.js';
+import { copy } from './lib/utils/index.js';
 
-const clear = getNode('#clear');
+const button = getNode('#submit');
+const resultElement = getNode('.result');
 
-function handleInput() {
-  const firstValue = +first.value;
-  const secondValue = +second.value;
-  const total = firstValue + secondValue;
-
-  clearContents(result);
-
-  insertLast(result, total);
-}
-
-function handleClear(e) {
+function handleClick(e) {
   e.preventDefault();
 
-  first.value = '';
-  second.value = '';
-  result.textContent = '-';
+  const input = getNode('#nameField');
+  const name = input.value;
+  const resultElement = getNode('.result');
+
+  if (!name) {
+    // '.alert-error' 요소 가져오기
+    showAlert('.alert-error', '공백 허용 안됨', 2000, 'is-active');
+    // addClass('#nameField', 'shake');
+    shake('#nameField');
+
+    return;
+  }
+
+  if (!isNumericString(name)) {
+    showAlert('.alert-error', '정확한 이름을 입력해 주세요', 2000, 'is-active');
+    shake('#nameField');
+    return;
+  }
+
+  const jujeob = jujeobData(name)[getRandom(jujeobData(name).length - 1)];
+  resultElement.textContent = jujeob;
+  clearContents(input);
 }
 
-first.addEventListener('input', handleInput);
-second.addEventListener('input', handleInput);
-clear.addEventListener('click', handleClear);
+function handleCopyClipboard() {
+  const text = this.textContent;
+  copy(text).then(() => {
+    showAlert('.alert-success', '클립보드에 복사됨', 2000, 'is-active');
+  });
+}
+
+button.addEventListener('click', handleClick);
+
+resultElement.addEventListener('click', handleCopyClipboard);
