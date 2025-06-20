@@ -1,202 +1,148 @@
-/*
-1. 주사위 굴리기 버튼을 선택
-2. 클릭 이벤트 바인딩
-3. 버튼 클릭 시 diceAnimation 애니메이션 동작
-  - setInterval diceAnimation
-4. 같은 버튼을 눌렀을 때 토글 처리
-  - 상태 변수 만들기
-    - isClicked = false;
-    - isClicked = !isClicked;
-  - 조건 처리
-5. 애니메이션 재생 or 정지
-  - setInterval
-  - clearInterval
-6. recordButton, resetButton 활성화/비활성화
-  - disabled true/false
-*/
-
-/*
-  1. 주사위 눈 가져오기
-    - cube의 dice 속성 값
-  2. 태그 만들고
-    - <tr>
-    - <td>회차</td>
-    - <td>주사위 눈 수</td>
-    - <td>주사위 눈의 총 합</td>
-    </tr>
-  3. 태그 렌더링하기
-    - insertLast
-*/
-
-// const rollingButton = buttons[0];
-// const recordButton = buttons[1];
-// const resetButton = buttons[2];
-
-// setInterval(diceAnimation, 1000);
-
-/* 
-  1. 주사위 굴리기 버튼을 선택
-      - querySelector or getNode
-
-  2. 클릭 이벤트 바인딩
-      - click 
-
-  3. 버튼 클릭시 diceAnimation 애니메이션 동작
-      - setInterval diceAnimation
-
-  4. 같은 버튼을 눌렀을 때 토글 처리
-      - 상태 변수 만들기
-        - isClicked = false;
-
-        - isClicked = !isClicked;
-
-      - 조건 처리 
-
-  5. 애니메이션 재생 or 정지
-      - setInterval
-      - clearInterval 
-
-  6. recordButton, resetButton 활성화/비활성화
-      - target.disabled = true || false
-
-*/
-
-/* 
-
-  1. 주사위 눈 가져오기
-      - cube의 dice 속성 값 
-
-  2. 태그 만들고
-      - <tr>
-          <td>0</td> // 회사
-          <td>5</td> // 주사위 눈 수
-          <td>5</td> // 주사위 눈의 총 합
-        </tr>
-
-  3. 태그 렌더링하기
-      - insertLast
-
-*/
-
-// const rollingButton = buttons[0];
-// const recordButton = buttons[1];
-// const resetButton = buttons[2];
-
-// setInterval(diceAnimation, 1000);
-
-/* 
-  1. 주사위 굴리기 버튼을 선택
-      - querySelector or getNode
-
-  2. 클릭 이벤트 바인딩
-      - click 
-
-  3. 버튼 클릭시 diceAnimation 애니메이션 동작
-      - setInterval diceAnimation
-
-  4. 같은 버튼을 눌렀을 때 토글 처리
-      - 상태 변수 만들기
-        - isClicked = false;
-
-        - isClicked = !isClicked;
-
-      - 조건 처리 
-
-  5. 애니메이션 재생 or 정지
-      - setInterval
-      - clearInterval 
-
-  6. recordButton, resetButton 활성화/비활성화
-      - target.disabled = true || false
-
-*/
-
-/* 
-
-  1. 주사위 눈 가져오기
-      - cube의 dice 속성 값 
-
-  2. 태그 만들고
-      - <tr>
-          <td>0</td> // 회사
-          <td>5</td> // 주사위 눈 수
-          <td>5</td> // 주사위 눈의 총 합
-        </tr>
-
-  3. 태그 렌더링하기
-      - insertLast
-
-*/
-
 import {
-  memo,
-  attr,
+  tiger,
+  END_POINT,
+  renderUserCard,
+  delayP,
+  renderSpinner,
   getNode,
-  endScroll,
-  insertLast,
+  changeColor,
+  renderEmptyCard,
   clearContents,
-  diceAnimation,
 } from './lib/index.js';
 
-const [rollingButton, recordButton, resetButton] = document.querySelectorAll(
-  '.buttonGroup button'
-);
-const recordListWrapper = getNode('.recordListWrapper');
+tiger.get(END_POINT);
 
-let count = 0;
-let total = 0;
+const userCardInner = document.querySelector('.user-card-inner');
 
-function renderRecordItem() {
-  const diceNumber = +attr(memo('cube'), 'dice');
-  total += diceNumber;
-  count++;
-  insertLast('tbody', createItem(diceNumber));
+async function renderUserList() {
+  renderSpinner(userCardInner);
+
+  try {
+    const { data } = await tiger.get(END_POINT);
+
+    await delayP(2000);
+
+    // getNode('.loadingSpinner').remove();
+    gsap.to('.loadingSpinner', {
+      opacity: 0,
+      duration: 0.2,
+      onComplete() {
+        getNode('.loadingSpinner').remove();
+        data.forEach((user) => renderUserCard(userCardInner, user));
+        changeColor('.user-card');
+
+        gsap.from('.user-card', {
+          opacity: 0,
+          stagger: 0.1,
+          x: -30,
+        });
+      },
+    });
+  } catch {
+    renderEmptyCard(userCardInner);
+    getNode('.loadingSpinner').remove();
+  }
 }
 
+renderUserList();
 
-function createItem(value) {
-  return `
-    <tr>
-      <td>${count}</td>
-      <td>${value}</td>
-      <td>${(total)}</td>
-    </tr>
-  `;
+/* -------------------------------------------------------------------------- */
+// 카드 삭제
+
+function handleDelete(e) {
+  const button = e.target.closest('button');
+
+  if (!button) return;
+
+  const id = button.dataset.value;
+
+  tiger.delete(`${END_POINT}/${id}`).then(() => {
+    alert('삭제가 완료되었습니다!');
+
+    clearContents(userCardInner);
+    renderUserList();
+  });
 }
 
-const handleRollingDice = (() => {
-  let isClicked = false;
-  let id;
+userCardInner.addEventListener('click', handleDelete);
 
-  return () => {
-    if (!isClicked) {
-      id = setInterval(diceAnimation, 100);
-      recordButton.disabled = true;
-      resetButton.disabled = true;
-    } else {
-      clearInterval(id);
-      recordButton.disabled = false;
-      resetButton.disabled = false;
+const createButton = getNode('.create');
+const cancelButton = getNode('.cancel');
+const doneButton = getNode('.done');
+
+function handleCreate() {
+  const pop = getNode('.pop');
+  // pop.style.opacity = 1;
+  // pop.style.visibility = 'initial'
+
+  gsap.to(pop, {
+    autoAlpha: 1,
+  });
+}
+
+function handleCancel(e) {
+  e.stopPropagation();
+  const pop = getNode('.pop');
+
+  gsap.to(pop, {
+    autoAlpha: 0,
+  });
+}
+
+async function handleDone(e) {
+  e.preventDefault();
+  const name = getNode('#nameField').value;
+  const email = getNode('#emailField').value;
+  const website = getNode('#siteField').value;
+
+  tiger.post(END_POINT, { name, email, website }).then(() => {
+    gsap.to('.pop', { autoAlpha: 0 });
+    clearContents(userCardInner);
+    renderUserList();
+
+    getNode('#nameField').value = '';
+    getNode('#emailField').value = '';
+    getNode('#siteField').value = '';
+  });
+}
+
+createButton.addEventListener('click', handleCreate);
+cancelButton.addEventListener('click', handleCancel);
+doneButton.addEventListener('click', handleDone);
+
+const registerButton = getNode('.register');
+const registerCancelButton = getNode('.register .cancel');
+const registerDoneButton = getNode('.register .done');
+
+function handleRegister() {
+  gsap.to('.register .pop', { autoAlpha: 1 });
+}
+
+function handleRegisterCancel(e) {
+  e.stopPropagation();
+  gsap.to('.register .pop', { autoAlpha: 0 });
+}
+
+function handleRegisterCreate(e) {
+  e.preventDefault();
+
+  const name = getNode('#create-name').value;
+  const password = getNode('#create-password').value;
+
+  tiger.post(
+    'http://localhost:3000/users',
+    {
+      email: name,
+      password: password,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
-
-    isClicked = !isClicked;
-  };
-})();
-
-function handleRecord() {
-  recordListWrapper.hidden = false;
-  total += +attr(memo('cube'), 'dice');
-  renderRecordItem();
-  endScroll(recordListWrapper);
+  );
 }
 
-function handleReset() {
-
-  clearContents('tbody');
-  count = 0;
-  total = 0;
-}
-
-rollingButton.addEventListener('click', handleRollingDice);
-recordButton.addEventListener('click', handleRecord);
-resetButton.addEventListener('click', handleReset);
+registerButton.addEventListener('click', handleRegister);
+registerCancelButton.addEventListener('click', handleRegisterCancel);
+registerDoneButton.addEventListener('click', handleRegisterCreate);
