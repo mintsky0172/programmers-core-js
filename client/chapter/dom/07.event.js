@@ -1,3 +1,5 @@
+import { getNode } from '../../lib/dom/getNode.js';
+
 /* --------------------- */
 /* Event Handling        */
 /* --------------------- */
@@ -10,7 +12,7 @@
 
 // ** wheel !== scroll
 
-const first = getNode('.first');
+// const first = getNode('.first');
 
 // first.onclick = () => {
 //   console.log('hit');
@@ -28,11 +30,11 @@ const first = getNode('.first');
 //   }
 // }
 
-function handler(e) {
-  console.log(e.offsetX, e.offsetY);
-}
+// function handler(e) {
+//   console.log(e.offsetX, e.offsetY);
+// }
 
-first.addEventListener('click', handler);
+// first.addEventListener('click', handler);
 
 /* 이벤트 추가/제거 --------------------------------------------------------- */
 
@@ -62,15 +64,15 @@ function handleBall({ offsetX: x, offsetY: y }) {
 // 스로틀 : 수도꼭지를 쫄쫄쫄 틀음
 // 디바운스 : 이벤트가 끝나면 그때만 실행되게 함
 
-function handleMove(e) {
-  console.log(this, e);
-}
-ground.addEventListener('mousemove', throttle(handleMove));
+// function handleMove(e) {
+//   console.log(this, e);
+// }
+// ground.addEventListener('mousemove', throttle(handleMove));
 
-const a = debounce(handleMove);
+// const a = debounce(handleMove);
 
-debounce();
-function debounce(f, limit = 1000) {
+// debounce();
+export function debounce(f, limit = 1000) {
   let timeout;
 
   return function (e) {

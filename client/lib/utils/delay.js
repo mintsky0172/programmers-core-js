@@ -111,7 +111,7 @@ async function f() {
 const a = f();
 
 // a.then(console.log); // 10
-console.log(await a); // 10
+// console.log(await a); // 10
 
 // IIAFE
 (async () => {
@@ -128,7 +128,7 @@ function delayA() {
 
 const result = await delayA();
 
-console.log(result); // 성공
+// console.log(result); // 성공
 
 async function 라면끓이기() {
   const a = await delayP({ data: '물' });
@@ -152,7 +152,7 @@ async function getData() {
 
   const src = data.sprites.other.showdown['front_default'];
 
-  insertLast(document.body, `<img src="${src}" alt="" />`);
+  insertLast(document.body, `<img class="pokemon" src="${src}" alt="" />`);
 }
 
-getData();
+// getData();
